@@ -13,19 +13,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-
     @Column(nullable = false)
     private Long id;
 
@@ -35,25 +32,19 @@ public class UserEntity {
     @Column(nullable = false)
     private String email;
 
-    @Version
-    private Integer version;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
+    private List<PomodoroEntity> pomodoros = new ArrayList<>();
 
-    @JsonManagedReference
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    @JoinColumn(name = "pomodoro")
-    private PomodoroEntity pomodoro;
-
-    @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+ 
+   
+    
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "User_Team", joinColumns = {
             @JoinColumn(name = "User_id", nullable = false, updatable = false)}, inverseJoinColumns = {
                     @JoinColumn(name = "Team_id", nullable = false, updatable = false)})
-    private List<TeamEntity> team = new ArrayList<>();
+    private List<TeamEntity> teams = new ArrayList<>();
 
-    public UserEntity() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+    public UserEntity() {}
 
     public Long getId() {
         return id;
@@ -79,28 +70,22 @@ public class UserEntity {
         this.email = email;
     }
 
-    public Integer getVersion() {
-        return version;
-    }
+   
+     public List<PomodoroEntity> getPomodoros() {
+		return pomodoros;
+	}
 
-    public void setVersion(Integer version) {
-        this.version = version;
-    }
+	public void setPomodoros(List<PomodoroEntity> pomodoros) {
+		this.pomodoros = pomodoros;
+	}
 
-    public PomodoroEntity getPomodoro() {
-        return pomodoro;
-    }
+	public List<TeamEntity> getTeams() {
+		return teams;
+	}
 
-    public void setPomodoro(PomodoroEntity pomodoro) {
-        this.pomodoro = pomodoro;
-    }
+	public void setTeams(List<TeamEntity> teams) {
+		this.teams = teams;
+	}
 
-    public List<TeamEntity> getTeam() {
-        return team;
-    }
-
-    public void setTeam(List<TeamEntity> team) {
-        this.team = team;
-    }
 
 }

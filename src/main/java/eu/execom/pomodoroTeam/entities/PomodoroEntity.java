@@ -1,9 +1,7 @@
 package eu.execom.pomodoroTeam.entities;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
+import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,35 +9,32 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
+
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class PomodoroEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-
     @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)
-    private Date dateTimeOn;
+    private Date dateTimeStart;
 
     @Column(nullable = false)
-    private Date dateTimeOff;
+    private Date dateTimeStop;
+    
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user")
+    private UserEntity user;
 
-    @JsonBackReference
-    @OneToMany(mappedBy = "pomodoro", fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
-    private List<UserEntity> user = new ArrayList<>();
-
-    public PomodoroEntity() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+    public PomodoroEntity() {}
 
     public Long getId() {
         return id;
@@ -49,27 +44,34 @@ public class PomodoroEntity {
         this.id = id;
     }
 
-    public Date getDateTimeOn() {
-        return dateTimeOn;
-    }
+	public Date getDateTimeStart() {
+		return dateTimeStart;
+	}
 
-    public void setDateTimeOn(Date dateTimeOn) {
-        this.dateTimeOn = dateTimeOn;
-    }
+	public void setDateTimeStart(Date dateTimeStart) {
+		this.dateTimeStart = dateTimeStart;
+	}
 
-    public Date getDateTimeOff() {
-        return dateTimeOff;
-    }
+	public Date getDateTimeStop() {
+		return dateTimeStop;
+	}
 
-    public void setDateTimeOff(Date dateTimeOff) {
-        this.dateTimeOff = dateTimeOff;
-    }
+	public void setDateTimeStop(Date dateTimeStop) {
+		this.dateTimeStop = dateTimeStop;
+	}
 
-    public List<UserEntity> getUser() {
-        return user;
-    }
+	public UserEntity getUser() {
+		return user;
+	}
 
-    public void setUser(List<UserEntity> user) {
-        this.user = user;
-    }
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	
+    
+
+  
+
+   
 }

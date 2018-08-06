@@ -10,30 +10,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TeamEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-
     @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
-    @JsonBackReference
-    @ManyToMany(mappedBy = "team")
-    private List<UserEntity> user = new ArrayList<>();
+    @ManyToMany(mappedBy = "teams")
+    private List<UserEntity> users = new ArrayList<>();
 
-    public TeamEntity() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+    public TeamEntity() {}
 
     public Long getId() {
         return id;
@@ -51,12 +44,14 @@ public class TeamEntity {
         this.name = name;
     }
 
-    public List<UserEntity> getUser() {
-        return user;
-    }
+	public List<UserEntity> getUsers() {
+		return users;
+	}
 
-    public void setUser(List<UserEntity> user) {
-        this.user = user;
-    }
+	public void setUsers(List<UserEntity> users) {
+		this.users = users;
+	}
 
+   
+    
 }
