@@ -15,9 +15,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
+import lombok.Data;
 
 
 
+@Data
 @Entity
 public class UserEntity {
 
@@ -44,48 +46,5 @@ public class UserEntity {
                     @JoinColumn(name = "Team_id", nullable = false, updatable = false)})
     private List<TeamEntity> teams = new ArrayList<>();
 
-    public UserEntity() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-   
-     public List<PomodoroEntity> getPomodoros() {
-		return pomodoros;
-	}
-
-	public void setPomodoros(List<PomodoroEntity> pomodoros) {
-		this.pomodoros = pomodoros;
-	}
-
-	public List<TeamEntity> getTeams() {
-		return teams;
-	}
-
-	public void setTeams(List<TeamEntity> teams) {
-		this.teams = teams;
-	}
-
-
+  
 }
