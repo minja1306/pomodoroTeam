@@ -17,8 +17,6 @@ import javax.persistence.OneToMany;
 
 import lombok.Data;
 
-
-
 @Data
 @Entity
 public class UserEntity {
@@ -36,9 +34,6 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
     private List<PomodoroEntity> pomodoros = new ArrayList<>();
-
- 
-   
     
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "User_Team", joinColumns = {

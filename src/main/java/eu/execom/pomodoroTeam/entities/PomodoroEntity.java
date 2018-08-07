@@ -14,12 +14,9 @@ import javax.persistence.ManyToOne;
 
 import lombok.Data;
 
-
-
-
-
+@Data
 @Entity
-public @Data class PomodoroEntity {
+public  class PomodoroEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,11 +32,5 @@ public @Data class PomodoroEntity {
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn(name = "user")
     private UserEntity user;
-
-   
-    
-
-  
-
    
 }
