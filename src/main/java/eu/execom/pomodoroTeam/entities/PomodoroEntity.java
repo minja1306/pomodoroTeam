@@ -12,12 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import lombok.Data;
 
-
-
-
+@Data
 @Entity
-public class PomodoroEntity {
+public  class PomodoroEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,45 +32,5 @@ public class PomodoroEntity {
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn(name = "user")
     private UserEntity user;
-
-    public PomodoroEntity() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-	public Date getDateTimeStart() {
-		return dateTimeStart;
-	}
-
-	public void setDateTimeStart(Date dateTimeStart) {
-		this.dateTimeStart = dateTimeStart;
-	}
-
-	public Date getDateTimeStop() {
-		return dateTimeStop;
-	}
-
-	public void setDateTimeStop(Date dateTimeStop) {
-		this.dateTimeStop = dateTimeStop;
-	}
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
-
-	
-    
-
-  
-
    
 }
