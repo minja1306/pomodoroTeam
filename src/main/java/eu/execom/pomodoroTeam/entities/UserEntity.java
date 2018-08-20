@@ -15,6 +15,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
+
+
 import lombok.Data;
 
 @Data
@@ -40,6 +42,8 @@ public class UserEntity {
             @JoinColumn(name = "User_id", nullable = false, updatable = false)}, inverseJoinColumns = {
                     @JoinColumn(name = "Team_id", nullable = false, updatable = false)})
     private List<TeamEntity> teams = new ArrayList<>();
+
+	
 
   
 }
