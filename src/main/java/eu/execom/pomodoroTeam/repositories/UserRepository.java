@@ -7,3 +7,4 @@ import eu.execom.pomodoroTeam.entities.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findByEmail(String email);
 }
+

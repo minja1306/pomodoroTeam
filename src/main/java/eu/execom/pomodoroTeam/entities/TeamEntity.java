@@ -12,10 +12,9 @@ import javax.persistence.ManyToMany;
 
 import lombok.Data;
 
-
 @Data
 @Entity
-public  class TeamEntity {
+public class TeamEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +25,6 @@ public  class TeamEntity {
     private String name;
 
     @ManyToMany(mappedBy = "teams")
-    private List<UserEntity> users = new ArrayList<>(); 
-    
+    private List<UserEntity> users = new ArrayList<>();
+
 }

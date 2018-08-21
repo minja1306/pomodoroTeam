@@ -1,7 +1,7 @@
 package eu.execom.pomodoroTeam.entities;
 
-
 import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +16,7 @@ import lombok.Data;
 
 @Data
 @Entity
-public  class PomodoroEntity {
+public class PomodoroEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,9 +28,9 @@ public  class PomodoroEntity {
 
     @Column(nullable = false)
     private Date dateTimeStop;
-    
+
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn(name = "user")
     private UserEntity user;
-   
+
 }
