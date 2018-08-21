@@ -34,12 +34,11 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH})
     private List<PomodoroEntity> pomodoros = new ArrayList<>();
-    
+
     @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "User_Team", joinColumns = {
             @JoinColumn(name = "User_id", nullable = false, updatable = false)}, inverseJoinColumns = {
                     @JoinColumn(name = "Team_id", nullable = false, updatable = false)})
     private List<TeamEntity> teams = new ArrayList<>();
 
-  
 }
