@@ -1,20 +1,19 @@
 package eu.execom.pomodoroTeam.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Data
 @Entity
-public class TeamEntity {
+@NoArgsConstructor
+public class TeamEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +23,9 @@ public class TeamEntity {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "teams")
-    private List<UserEntity> users = new ArrayList<>();
-
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    @JoinTable(name = "User_Team", joinColumns = {
+            @JoinColumn(name = "Team_id", nullable = false, updatable = false)}, inverseJoinColumns = {
+            @JoinColumn(name = "User_id", nullable = false, updatable = false)})
+    private List<UserEntity> user = new ArrayList<>();
 }
