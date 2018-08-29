@@ -1,30 +1,26 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import java.security.Principal;
-import java.util.Map;
-
+import eu.execom.pomodoroTeam.entities.UserEntity;
+import eu.execom.pomodoroTeam.entities.dto.UserDto;
+import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import eu.execom.pomodoroTeam.entities.UserEntity;
-import eu.execom.pomodoroTeam.entities.dto.UserDto;
-import eu.execom.pomodoroTeam.repositories.UserRepository;
+import java.security.Principal;
+import java.util.Map;
 
 @RestController
+@RequestMapping(path = "/user")
 public class LoginController {
 
     @Autowired
     private UserRepository userRepository;
 
-    @RequestMapping("/user")
+    @RequestMapping
     public Principal user(Principal principal) {
         OAuth2Authentication details = (OAuth2Authentication) principal;
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) details.getUserAuthentication();
@@ -34,13 +30,12 @@ public class LoginController {
         return principal;
     }
 
-    @GetMapping("/user/getAll")
+    @GetMapping("/getAll")
     public Iterable<UserEntity> getAllUsers() {
         return userRepository.findAll();
-
     }
 
-    @PostMapping(value = "/user/addUser")
+    @PostMapping(value = "/addUser")
     public ResponseEntity<?> addNewUser(@RequestBody UserDto userDto) {
         UserEntity user = userRepository.getByEmail(userDto.getEmail());
         if (user == null) {
@@ -52,4 +47,50 @@ public class LoginController {
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Iterable<UserEntity> user = getAllUsers();
+        for (UserEntity userEntity : user) {
+            if (userEntity.getId().equals(id)) {
+                return new ResponseEntity<>(userEntity, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(id, HttpStatus.NOT_FOUND);
+
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestParam String name, @RequestParam String email) {
+        Iterable<UserEntity> user = getAllUsers();
+        for (UserEntity userEntity : user) {
+            if (userEntity.getId().equals(id)) {
+                UserEntity ue = userRepository.getOne(id);
+                if (name != null) {
+                    ue.setName(name);
+                }
+                if (email != null) {
+                    ue.setEmail(email);
+                }
+                userRepository.save(ue);
+                return new ResponseEntity<>(ue, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(id, HttpStatus.NOT_FOUND);
+
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
 }
+
+
+
+
+
+
+
