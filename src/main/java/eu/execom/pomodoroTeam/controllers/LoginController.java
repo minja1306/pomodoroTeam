@@ -8,17 +8,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/user")
 public class LoginController {
 
-    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    public LoginController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @RequestMapping
     public Principal user(Principal principal) {
@@ -31,53 +44,41 @@ public class LoginController {
     }
 
     @GetMapping("/getAll")
-    public Iterable<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<List<UserEntity>> getAllUsers() {
+        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/addUser")
     public ResponseEntity<?> addNewUser(@RequestBody UserDto userDto) {
         UserEntity user = userRepository.getByEmail(userDto.getEmail());
         if (user == null) {
-            UserEntity ue = new UserEntity();
-            ue.setName(userDto.getName());
-            ue.setEmail(userDto.getEmail());
-            userRepository.save(ue);
-            return new ResponseEntity<>(ue, HttpStatus.OK);
+            user = new UserEntity();
+            user.setName(userDto.getName());
+            user.setEmail(userDto.getEmail());
+            userRepository.save(user);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        Iterable<UserEntity> user = getAllUsers();
-        for (UserEntity userEntity : user) {
-            if (userEntity.getId().equals(id)) {
-                return new ResponseEntity<>(userEntity, HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(id, HttpStatus.NOT_FOUND);
-
+        UserEntity user = userRepository.getOne(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestParam String name, @RequestParam String email) {
-        Iterable<UserEntity> user = getAllUsers();
-        for (UserEntity userEntity : user) {
-            if (userEntity.getId().equals(id)) {
-                UserEntity ue = userRepository.getOne(id);
-                if (name != null) {
-                    ue.setName(name);
-                }
-                if (email != null) {
-                    ue.setEmail(email);
-                }
-                userRepository.save(ue);
-                return new ResponseEntity<>(ue, HttpStatus.OK);
-            }
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        UserEntity user = userRepository.getOne(id);
+        if (user.getName() != null) {
+            user.setName(userDto.getName());
         }
-        return new ResponseEntity<>(id, HttpStatus.NOT_FOUND);
+        if (user.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
+        }
+        userRepository.save(user);
 
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -87,10 +88,3 @@ public class LoginController {
     }
 
 }
-
-
-
-
-
-
-
