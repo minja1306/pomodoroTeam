@@ -1,12 +1,13 @@
 package eu.execom.pomodoroTeam.controllers;
 
+import org.jboss.logging.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.jboss.logging.Logger;
+
 import javax.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
@@ -30,16 +31,3 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 }
-
-/*
- protected ResponseEntity<ExceptionMessage> errorResponse(Throwable throwable,
-            HttpStatus status) {
-        if (null != throwable) {
-            log.error("error caught: " + throwable.getMessage(), throwable);
-            return response(new ExceptionMessage(throwable), status);
-        } else {
-            log.error("unknown error caught in RESTController, {}", status);
-            return response(null, status);
-        }
-    }
-*/
