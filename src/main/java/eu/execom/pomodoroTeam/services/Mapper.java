@@ -4,12 +4,12 @@ import eu.execom.pomodoroTeam.controllers.dto.TeamDto;
 import eu.execom.pomodoroTeam.controllers.dto.UserDto;
 import eu.execom.pomodoroTeam.entities.TeamEntity;
 import eu.execom.pomodoroTeam.entities.UserEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Service
+@Component
 public class Mapper {
     public UserDto userToUserDto(UserEntity user) {
         UserDto userDto = new UserDto();
@@ -20,10 +20,7 @@ public class Mapper {
     }
 
     public List<UserDto> userListToUserDtoList(List<UserEntity> userList) {
-        List<UserDto> userDtos = new ArrayList<>();
-        for (UserEntity user : userList) {
-            userDtos.add(userToUserDto(user));
-        }
+        List<UserDto> userDtos = userList.stream().map(this::userToUserDto).collect(Collectors.toList());
         return userDtos;
     }
 
@@ -35,10 +32,7 @@ public class Mapper {
     }
 
     public List<TeamDto> teamListToTeamDtoList(List<TeamEntity> teamList) {
-        List<TeamDto> teamDtos = new ArrayList<>();
-        for (TeamEntity team : teamList) {
-            teamDtos.add(teamToTeamDto(team));
-        }
+        List<TeamDto> teamDtos = teamList.stream().map(this::teamToTeamDto).collect(Collectors.toList());
         return teamDtos;
     }
 }

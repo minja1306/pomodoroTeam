@@ -46,10 +46,9 @@ public class LoginController {
     }
 
     @GetMapping("/getAll")
-
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.userListToUserDtoList(users), HttpStatus.OK);
     }
 
     @PostMapping(value = "/addUser")
