@@ -1,17 +1,21 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import eu.execom.pomodoroTeam.controllers.util.RESTError;
 import eu.execom.pomodoroTeam.entities.UserEntity;
 import eu.execom.pomodoroTeam.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import eu.execom.pomodoroTeam.entities.TeamEntity;
 import eu.execom.pomodoroTeam.entities.dto.TeamDto;
 import eu.execom.pomodoroTeam.repositories.TeamRepository;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -31,17 +35,20 @@ public class TeamController {
     }
 
     /**
-     * creat new team
+     * create new team
      *
      * @param teamDto
      * @return
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createNewTeam(@RequestBody TeamDto teamDto) {
+    public ResponseEntity<TeamDto> createNewTeam(@RequestBody TeamDto teamDto) {
         TeamEntity team = new TeamEntity();
         team.setName(teamDto.getName());
         teamRepository.save(team);
-        return new ResponseEntity<>(team, HttpStatus.OK);
+        TeamDto teamDto2 = new TeamDto();
+        teamDto2.setName(team.getName());
+        teamDto2.setId(team.getId());
+        return new ResponseEntity<>(teamDto2, HttpStatus.CREATED);
     }
 
     /**
@@ -49,10 +56,10 @@ public class TeamController {
      *
      * @return
      */
-
     @RequestMapping(method = RequestMethod.GET, value = "/getAllTeams")
-    public ResponseEntity<List<TeamEntity>> getAllteam() {
-        return new ResponseEntity<>(teamRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<TeamEntity>> getAllTeams() {
+        List<TeamEntity> teams = teamRepository.findAll();
+        return new ResponseEntity<>(teams, HttpStatus.OK);
     }
 
     /**
@@ -61,7 +68,6 @@ public class TeamController {
      * @param id
      * @return
      */
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getTeamById(@PathVariable Long id) {
         TeamEntity team = teamRepository.getOne(id);
@@ -76,13 +82,15 @@ public class TeamController {
      * @return
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public ResponseEntity<?> updateTeam(@PathVariable Long id, @RequestBody TeamDto teamDto) {
+    public ResponseEntity<TeamDto> updateTeam(@PathVariable Long id, @RequestBody TeamDto teamDto) {
         TeamEntity team = teamRepository.getOne(id);
         if (team.getName() != null) {
             team.setName(teamDto.getName());
         }
         teamRepository.save(team);
-        return new ResponseEntity<>(team, HttpStatus.OK);
+        TeamDto teamDto2 = new TeamDto();
+        teamDto2.setName(team.getName());
+        return new ResponseEntity<>(teamDto2, HttpStatus.OK);
     }
 
     /**
@@ -104,10 +112,8 @@ public class TeamController {
      * @param user
      * @return
      */
-
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}/user")
-    public ResponseEntity<?> addUserToTeam(@PathVariable Long id, @RequestParam Long user) {
-
+    public ResponseEntity<TeamEntity> addUserToTeam(@PathVariable Long id, @RequestParam Long user) {
         TeamEntity team = teamRepository.getOne(id);
         UserEntity us = userRepository.getOne(user);
         List<UserEntity> users = team.getUser();
@@ -117,10 +123,3 @@ public class TeamController {
         return new ResponseEntity<>(team, HttpStatus.OK);
     }
 }
-
-
-
-
-
-
-
