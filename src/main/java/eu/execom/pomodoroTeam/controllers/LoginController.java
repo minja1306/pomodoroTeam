@@ -1,16 +1,19 @@
 package eu.execom.pomodoroTeam.controllers;
 
 import java.security.Principal;
+
 import java.util.List;
 import java.util.Map;
 
 import eu.execom.pomodoroTeam.entities.dto.UserDto;
 import eu.execom.pomodoroTeam.services.UserDao;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+
 import org.springframework.web.bind.annotation.*;
 
 import eu.execom.pomodoroTeam.entities.UserEntity;
@@ -30,8 +33,9 @@ public class LoginController {
         this.userdao = userdao;
     }
 
+
     @RequestMapping
-    public Principal user(Principal principal) {
+        public Principal user(Principal principal) {
         OAuth2Authentication details = (OAuth2Authentication) principal;
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) details.getUserAuthentication();
         Map tokenDetails = (Map) token.getDetails();
@@ -49,6 +53,18 @@ public class LoginController {
     public ResponseEntity<List<UserEntity>> getAllUsers() {
         return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
+  
+      /**
+     * get user by id
+     *
+     * @param id
+     * @return
+     */
+      @GetMapping(value = "/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        UserEntity user = userRepository.getOne(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     /**
      * create user
@@ -64,19 +80,6 @@ public class LoginController {
             user.setEmail(userDto.getEmail());
             userRepository.save(user);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    /**
-     * get user by id
-     *
-     * @param id
-     * @return
-     */
-
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        UserEntity user = userRepository.getOne(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -116,3 +119,6 @@ public class LoginController {
 
 }
 
+   
+
+  
