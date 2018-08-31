@@ -1,7 +1,7 @@
 package eu.execom.pomodoroTeam.controllers;
 
 import eu.execom.pomodoroTeam.entities.UserEntity;
-import eu.execom.pomodoroTeam.entities.dto.UserDto;
+import eu.execom.pomodoroTeam.controllers.dto.UserDto;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import eu.execom.pomodoroTeam.services.Mapper;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +27,12 @@ import java.util.Map;
 public class LoginController {
 
     private UserRepository userRepository;
+    private Mapper mapper;
 
     @Autowired
     public LoginController(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.mapper = mapper;
     }
 
     @RequestMapping
@@ -44,12 +46,14 @@ public class LoginController {
     }
 
     @GetMapping("/getAll")
+
     public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
+        List<UserEntity> users = userRepository.findAll();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PostMapping(value = "/addUser")
-    public ResponseEntity<?> addNewUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> addNewUser(@RequestBody UserDto userDto) {
         UserEntity user = userRepository.getByEmail(userDto.getEmail());
         if (user == null) {
             user = new UserEntity();
@@ -57,7 +61,7 @@ public class LoginController {
             user.setEmail(userDto.getEmail());
             userRepository.save(user);
         }
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -68,7 +72,7 @@ public class LoginController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         UserEntity user = userRepository.getOne(id);
         if (user.getName() != null) {
             user.setName(userDto.getName());
@@ -78,7 +82,7 @@ public class LoginController {
         }
         userRepository.save(user);
 
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")

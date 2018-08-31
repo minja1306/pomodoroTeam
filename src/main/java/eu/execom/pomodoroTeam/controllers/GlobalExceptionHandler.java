@@ -1,6 +1,6 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import org.jboss.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,24 +10,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.persistence.EntityNotFoundException;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-    private static Logger log = Logger.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException e, WebRequest request) {
-        log.info("Entity not found!");
+        log.error("Requested URL: {}. Exception raised: {}", request, e);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleInternalServerErrorException(Exception e, WebRequest request) {
-        log.info("Internal server error!");
+        log.error("There was an exception: ", e);
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private void logException(Exception e) {
-        log.info("Exception" + e + "occurred!");
-
     }
 }
