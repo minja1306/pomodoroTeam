@@ -1,6 +1,6 @@
 package eu.execom.pomodoroTeam.entities;
 
-import java.util.Date;
+import lombok.Data;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,8 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import lombok.Data;
+import java.util.Date;
 
 @Data
 @Entity

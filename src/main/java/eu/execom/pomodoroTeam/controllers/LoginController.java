@@ -1,30 +1,41 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import java.security.Principal;
-import java.util.Map;
-
+import eu.execom.pomodoroTeam.entities.UserEntity;
+import eu.execom.pomodoroTeam.controllers.dto.UserDto;
+import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import eu.execom.pomodoroTeam.entities.UserEntity;
-import eu.execom.pomodoroTeam.entities.dto.UserDto;
-import eu.execom.pomodoroTeam.repositories.UserRepository;
+import eu.execom.pomodoroTeam.services.Mapper;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequestMapping(path = "/user")
 public class LoginController {
 
-    @Autowired
     private UserRepository userRepository;
+    private Mapper mapper;
 
-    @RequestMapping("/user")
+    @Autowired
+    public LoginController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+        this.mapper = mapper;
+    }
+
+    @RequestMapping
     public Principal user(Principal principal) {
         OAuth2Authentication details = (OAuth2Authentication) principal;
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) details.getUserAuthentication();
@@ -34,22 +45,49 @@ public class LoginController {
         return principal;
     }
 
-    @GetMapping("/user/getAll")
-    public Iterable<UserEntity> getAllUsers() {
-        return userRepository.findAll();
-
+    @GetMapping("/getAll")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        return new ResponseEntity<>(mapper.userListToUserDtoList(users), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/user/addUser")
-    public ResponseEntity<?> addNewUser(@RequestBody UserDto userDto) {
+    @PostMapping(value = "/addUser")
+    public ResponseEntity<UserDto> addNewUser(@RequestBody UserDto userDto) {
         UserEntity user = userRepository.getByEmail(userDto.getEmail());
         if (user == null) {
-            UserEntity ue = new UserEntity();
-            ue.setName(userDto.getName());
-            ue.setEmail(userDto.getEmail());
-            userRepository.save(ue);
-            return new ResponseEntity<>(ue, HttpStatus.OK);
+            user = new UserEntity();
+            user.setName(userDto.getName());
+            user.setEmail(userDto.getEmail());
+            userRepository.save(user);
         }
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/{id}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        UserEntity user = userRepository.getOne(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        UserEntity user = userRepository.getOne(id);
+        if (user.getName() != null) {
+            user.setName(userDto.getName());
+        }
+        if (user.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
+        }
+        userRepository.save(user);
+
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
 }
