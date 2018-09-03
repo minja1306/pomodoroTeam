@@ -1,8 +1,7 @@
 package eu.execom.pomodoroTeam.entities;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Data;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,21 +11,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
-@NoArgsConstructor
-@ToString(exclude = {"pomodoros", "team"})
-public class UserEntity implements Serializable {
+public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Long id;
 
@@ -39,7 +32,8 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "user")
     private List<PomodoroEntity> pomodoros = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference
-    private List<TeamEntity> team = new ArrayList<>();
+    private List<TeamEntity> teams = new ArrayList<>();
+
 }

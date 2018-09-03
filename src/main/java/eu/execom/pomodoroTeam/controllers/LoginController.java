@@ -1,42 +1,38 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-
-import eu.execom.pomodoroTeam.entities.TeamEntity;
-import eu.execom.pomodoroTeam.entities.dto.UserDto;
-import eu.execom.pomodoroTeam.services.UserDao;
+import eu.execom.pomodoroTeam.entities.UserEntity;
+import eu.execom.pomodoroTeam.controllers.dto.UserDto;
+import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import eu.execom.pomodoroTeam.repositories.TeamRepository;
-import eu.execom.pomodoroTeam.entities.UserEntity;
-import eu.execom.pomodoroTeam.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import eu.execom.pomodoroTeam.services.Mapper;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
-@RequestMapping(path = "/user")
 @RestController
+@RequestMapping(path = "/user")
 public class LoginController {
 
     private UserRepository userRepository;
-
-    private TeamRepository teamRepository;
+    private Mapper mapper;
 
     @Autowired
-    public LoginController(UserRepository userRepository, TeamRepository teamRepository) {
+    public LoginController(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.teamRepository = teamRepository;
+        this.mapper = mapper;
     }
 
     @RequestMapping
@@ -49,25 +45,14 @@ public class LoginController {
         return principal;
     }
 
-    /**
-     * list of all users
-     *
-     * @return
-     */
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.userListToUserDtoList(users), HttpStatus.OK);
     }
 
-    /**
-     * create user
-     *
-     * @param userDto
-     * @return
-     */
     @PostMapping(value = "/addUser")
-    public ResponseEntity<UserEntity> addNewUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> addNewUser(@RequestBody UserDto userDto) {
         UserEntity user = userRepository.getByEmail(userDto.getEmail());
         if (user == null) {
             user = new UserEntity();
@@ -75,31 +60,18 @@ public class LoginController {
             user.setEmail(userDto.getEmail());
             userRepository.save(user);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.CREATED);
     }
 
-    /**
-     * get user by id
-     *
-     * @param id
-     * @return
-     */
     @GetMapping(value = "/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         UserEntity user = userRepository.getOne(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    /**
-     * edit user
-     *
-     * @param id
-     * @param userDto
-     * @return
-     */
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         UserEntity user = userRepository.getOne(id);
         if (user.getName() != null) {
             user.setName(userDto.getName());
@@ -107,32 +79,15 @@ public class LoginController {
         if (user.getEmail() != null) {
             user.setEmail(userDto.getEmail());
         }
-
         userRepository.save(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+
+        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.OK);
     }
 
-    /**
-     * delete user
-     *
-     * @param id
-     * @return
-     */
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
-    /**
-     * shaw users by team
-     *
-     * @param id
-     * @return
-     */
-    @RequestMapping(method = RequestMethod.GET, value = "/team/{id}")
-    public List<UserEntity> findUsFromTm(@PathVariable Long id) {
-        TeamEntity team = teamRepository.getOne(id);
-        return userRepository.findUserByTeam(team);
-    }
 }
