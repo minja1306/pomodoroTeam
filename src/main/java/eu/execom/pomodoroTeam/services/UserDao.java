@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface UserDao {
 
-    public List<UserEntity> findUserByTeam(Long id);
+    /* public List<UserEntity> findUserByTeam(Long id);*/
 }

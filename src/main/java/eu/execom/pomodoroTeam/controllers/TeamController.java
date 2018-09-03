@@ -122,4 +122,22 @@ public class TeamController {
         teamRepository.save(team);
         return new ResponseEntity<>(team, HttpStatus.OK);
     }
+
+    /**
+     * remove user from team
+     *
+     * @param id
+     * @param user
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.PUT, value = "/leaveTeam/{id}/user")
+    public ResponseEntity<TeamEntity> leaveUserFromTeam(@PathVariable Long id, @RequestParam Long user) {
+        TeamEntity team = teamRepository.getOne(id);
+        UserEntity us = userRepository.getOne(user);
+        List<UserEntity> users = team.getUser();
+        users.remove(us);
+        team.setUser(users);
+        teamRepository.save(team);
+        return new ResponseEntity<>(team, HttpStatus.OK);
+    }
 }
