@@ -1,9 +1,9 @@
 package eu.execom.pomodoroTeam.services;
 
-import eu.execom.pomodoroTeam.controllers.dto.TeamDto;
-import eu.execom.pomodoroTeam.controllers.dto.UserDto;
 import eu.execom.pomodoroTeam.entities.TeamEntity;
 import eu.execom.pomodoroTeam.entities.UserEntity;
+import eu.execom.pomodoroTeam.entities.dto.TeamDto;
+import eu.execom.pomodoroTeam.entities.dto.UserDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

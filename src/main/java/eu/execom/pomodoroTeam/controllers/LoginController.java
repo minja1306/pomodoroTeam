@@ -1,7 +1,7 @@
 package eu.execom.pomodoroTeam.controllers;
 
 import eu.execom.pomodoroTeam.entities.UserEntity;
-import eu.execom.pomodoroTeam.controllers.dto.UserDto;
+import eu.execom.pomodoroTeam.entities.dto.UserDto;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -81,7 +81,8 @@ public class LoginController {
         }
         userRepository.save(user);
 
-        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.OK);
+        UserDto updatedUserDto = (UserDto) mapper.userToUserDto(user);
+        return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
