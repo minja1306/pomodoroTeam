@@ -35,6 +35,6 @@ public class TeamEntity implements Serializable {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "User_Team", joinColumns = @JoinColumn(name = "Team_id"), inverseJoinColumns = @JoinColumn(name = "User_id"))
-    private List<UserEntity> user = new ArrayList<>();
+    private List<UserEntity> users = new ArrayList<>();
 
 }

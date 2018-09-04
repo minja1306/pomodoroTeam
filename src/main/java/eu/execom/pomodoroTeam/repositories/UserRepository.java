@@ -9,5 +9,5 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity getByEmail(String email);
 
-    List<UserEntity> findUserByTeam(TeamEntity team);
+    List<UserEntity> findUserByTeams(TeamEntity team);
 }
