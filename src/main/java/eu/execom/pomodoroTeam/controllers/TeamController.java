@@ -1,6 +1,5 @@
 package eu.execom.pomodoroTeam.controllers;
 
-import eu.execom.pomodoroTeam.entities.UserEntity;
 import eu.execom.pomodoroTeam.services.Mapper;
 import eu.execom.pomodoroTeam.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +48,7 @@ public class TeamController {
         TeamEntity team = new TeamEntity();
         team.setName(teamDto.getName());
         teamRepository.save(team);
-        TeamDto createdTeamDto = new TeamDto();
-        createdTeamDto.setName(team.getName());
-        createdTeamDto.setId(team.getId());
+        TeamDto createdTeamDto = mapper.teamToTeamDto(team);
         return new ResponseEntity<>(createdTeamDto, HttpStatus.CREATED);
     }
 
@@ -73,9 +70,9 @@ public class TeamController {
      * @return
      */
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getTeamById(@PathVariable Long id) {
+    public ResponseEntity<TeamDto> getTeamById(@PathVariable Long id) {
         TeamEntity team = teamRepository.getOne(id);
-        return new ResponseEntity<>(team, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 
     /**
@@ -116,14 +113,10 @@ public class TeamController {
      * @return
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}/user")
-    public ResponseEntity<TeamEntity> addUserToTeam(@PathVariable Long id, @RequestParam Long user) {
+    public ResponseEntity<TeamDto> addUserToTeam(@PathVariable Long id, @RequestParam Long user) {
         TeamEntity team = teamRepository.getOne(id);
-        UserEntity us = userRepository.getOne(user);
-        List<UserEntity> users = team.getUsers();
-        users.add(us);
-        team.setUsers(users);
-        teamRepository.save(team);
-        return new ResponseEntity<>(team, HttpStatus.OK);
+        teamService.addUserToTeam(id, user);
+        return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 
     /**
@@ -134,9 +127,9 @@ public class TeamController {
      * @return
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/removeFromTeam/{id}/user")
-    public ResponseEntity<TeamEntity> removeUserFromTeam(@PathVariable Long id, @RequestParam Long user) {
+    public ResponseEntity<TeamDto> removeUserFromTeam(@PathVariable Long id, @RequestParam Long user) {
         TeamEntity team = teamRepository.getOne(id);
         teamService.removeUserFromTeam(id, user);
-        return new ResponseEntity<>(team, HttpStatus.OK);
+        return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 }

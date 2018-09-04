@@ -6,6 +6,7 @@ import eu.execom.pomodoroTeam.repositories.TeamRepository;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 
 @Service
@@ -25,6 +26,16 @@ public class TeamService {
         List<UserEntity> users = team.getUsers();
         users.remove(us);
         teamRepository.save(team);
+    }
+
+    public void addUserToTeam(Long id, Long user) {
+        TeamEntity team = teamRepository.getOne(id);
+        UserEntity us = userRepository.getOne(user);
+        List<UserEntity> users = team.getUsers();
+        users.add(us);
+        // team.setUsers(users);
+        teamRepository.save(team);
+
     }
 
 }

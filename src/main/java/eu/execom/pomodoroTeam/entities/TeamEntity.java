@@ -22,7 +22,7 @@ import lombok.ToString;
 @Data
 @Entity
 @NoArgsConstructor
-@ToString(exclude = {"user"})
+@ToString(exclude = {"users"})
 public class TeamEntity implements Serializable {
 
     @Id
