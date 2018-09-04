@@ -16,7 +16,6 @@ import javax.persistence.ManyToMany;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.ToString;
 
 @Data

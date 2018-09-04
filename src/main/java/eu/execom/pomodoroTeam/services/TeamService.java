@@ -33,7 +33,6 @@ public class TeamService {
         UserEntity us = userRepository.getOne(user);
         List<UserEntity> users = team.getUsers();
         users.add(us);
-        // team.setUsers(users);
         teamRepository.save(team);
 
     }
