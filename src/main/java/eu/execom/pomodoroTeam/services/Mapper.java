@@ -4,12 +4,11 @@ import eu.execom.pomodoroTeam.entities.TeamEntity;
 import eu.execom.pomodoroTeam.entities.UserEntity;
 import eu.execom.pomodoroTeam.entities.dto.TeamDto;
 import eu.execom.pomodoroTeam.entities.dto.UserDto;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 public class Mapper {
     public UserDto userToUserDto(UserEntity user) {
         UserDto userDto = new UserDto();
