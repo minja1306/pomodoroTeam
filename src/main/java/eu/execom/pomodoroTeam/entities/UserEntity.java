@@ -2,6 +2,7 @@ package eu.execom.pomodoroTeam.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class UserEntity {
 
     @Id

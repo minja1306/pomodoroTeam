@@ -1,17 +1,17 @@
 package eu.execom.pomodoroTeam.entities.dto;
 
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class TeamDto {
-    private Long id;
-    private String name;
+public class InvitationDto {
 
-    public TeamDto(Long id, String name) {
+    private String userEmail;
+    private Long id;
+
+    public InvitationDto(String userEmail, Long id) {
+        this.userEmail = userEmail;
         this.id = id;
-        this.name = name;
     }
 }

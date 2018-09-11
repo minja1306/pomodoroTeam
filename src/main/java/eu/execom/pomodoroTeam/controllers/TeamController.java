@@ -1,7 +1,18 @@
 package eu.execom.pomodoroTeam.controllers;
 
+import eu.execom.pomodoroTeam.entities.Invitation;
+import eu.execom.pomodoroTeam.entities.UserEntity;
+import eu.execom.pomodoroTeam.entities.dto.InvitationDto;
+import eu.execom.pomodoroTeam.entities.dto.MessageDto;
+import eu.execom.pomodoroTeam.entities.dto.NewInvitationDto;
+import eu.execom.pomodoroTeam.entities.dto.StatusDto;
+import eu.execom.pomodoroTeam.entities.dto.TeamWithUserDto;
+import eu.execom.pomodoroTeam.repositories.UserRepository;
+import eu.execom.pomodoroTeam.services.MailService;
 import eu.execom.pomodoroTeam.services.Mapper;
 import eu.execom.pomodoroTeam.services.TeamService;
+import eu.execom.pomodoroTeam.services.UserService;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +21,15 @@ import eu.execom.pomodoroTeam.entities.dto.TeamDto;
 import eu.execom.pomodoroTeam.repositories.TeamRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 @RestController
@@ -25,16 +39,25 @@ public class TeamController {
     private TeamRepository teamRepository;
     private TeamService teamService;
     private Mapper mapper;
+    private UserService userService;
+    private UserRepository userRepository;
+    private MailService mailService;
+
+    private static Logger log = Logger.getLogger(TeamController.class);
 
     @Autowired
-    public TeamController(TeamRepository teamRepository, TeamService teamService,
-            Mapper mapper) {
+    public TeamController(TeamRepository teamRepository, TeamService teamService, Mapper mapper,
+            UserService userService, UserRepository userRepository, MailService mailService) {
         this.teamRepository = teamRepository;
         this.teamService = teamService;
         this.mapper = mapper;
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.mailService = mailService;
     }
 
-    /** create new team
+    /**
+     * create new team
      *
      * @param teamDto
      * @return createdTeamDto
@@ -59,7 +82,8 @@ public class TeamController {
         return new ResponseEntity<>(mapper.teamListToTeamDtoList(teams), HttpStatus.OK);
     }
 
-    /** get team by id
+    /**
+     * get team by id
      *
      * @param id
      * @return TeamDto
@@ -70,7 +94,8 @@ public class TeamController {
         return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 
-    /** update team
+    /**
+     * update team
      *
      * @param id
      * @param teamDto
@@ -103,7 +128,9 @@ public class TeamController {
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}/user")
     public ResponseEntity<TeamDto> addUserToTeam(@PathVariable Long id, @RequestParam Long user) {
-        TeamEntity team = teamService.addUserToTeam(id, user);
+        TeamEntity team = teamRepository.getOne(id);
+        UserEntity us = userRepository.getOne(user);
+        teamService.addUserToTeam(us, team);
         return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 
@@ -111,12 +138,67 @@ public class TeamController {
      * remove user from team
      *
      * @param id
-     * @param user
+     * @param
      * @return teamDto
      */
-    @RequestMapping(method = RequestMethod.PUT, value = "/removeFromTeam/{id}/user")
-    public ResponseEntity<TeamDto> removeUserFromTeam(@PathVariable Long id, @RequestParam Long user) {
-        TeamEntity team = teamService.removeUserFromTeam(id, user);
+    @RequestMapping(method = RequestMethod.PUT, value = "/removeFromTeam/{id}/email")
+    public ResponseEntity<TeamDto> removeUserFromTeam(@PathVariable Long id, @RequestParam String email) {
+        TeamEntity team = teamRepository.getOne(id);
+        teamService.removeUserFromTeam(id, email);
         return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
+
+    /**
+     * send invitation
+     *
+     * @param invitationDto
+     * @param id
+     * @throws MessagingException
+     */
+    @PostMapping("/{id}/sendInvitation")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void sendInvitation(@RequestBody InvitationDto invitationDto, @PathVariable Long id)
+            throws MessagingException {
+        log.info("-------------------------------------------------------------------------------");
+        log.info("usao je u kontroler");
+        log.info("-------------------------------------------------------------------------------");
+        log.info("usao " + invitationDto.getUserEmail());
+        Invitation invitation = userService.createInvitation(invitationDto.getUserEmail(), id);
+        mailService.sendInvitationMail("Bojana", invitation);
+    }
+
+    /**
+     * activate user to team
+     *
+     * @param activationLink
+     * @param statusDto
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/activateUserToTeam")
+    public ResponseEntity<MessageDto> activateUserToTeam(@RequestParam(value = "activationLink") String activationLink,
+            @RequestBody StatusDto statusDto) {
+
+        NewInvitationDto newInvitationDto = teamService.DataFromInvitation(activationLink);
+        MessageDto messageDto = new MessageDto();
+        String message = "";
+        if (statusDto.getAccept().equals("false")) {
+            message = "invitation rejected";
+        } else {
+            if (!teamService.checkIfUserExistsInThatTeamByEmail(newInvitationDto.getEmail(),
+                    newInvitationDto.getTeamId())) {
+                TeamWithUserDto teamWithUserDto = teamService.checkIfUserExistsInAnyTeam(newInvitationDto.getEmail(),
+                        newInvitationDto.getTeamId());
+                log.info(teamWithUserDto.isFound());
+                log.info("-------------------------------------------------------------------------------");
+                log.info(newInvitationDto.getEmail() + " " + newInvitationDto.getTeamId());
+                UserEntity us = userService.getUserByEmail(newInvitationDto.getEmail());
+                TeamEntity te = teamService.getSingleTeam(newInvitationDto.getTeamId());
+                teamService.addUserToTeam(us, te);
+                message = "user has been added";
+            }
+        }
+        messageDto.setMessage(message);
+        return new ResponseEntity<>(messageDto, HttpStatus.OK);
+    }
 }
+

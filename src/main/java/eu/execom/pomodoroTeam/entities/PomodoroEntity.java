@@ -1,6 +1,7 @@
 package eu.execom.pomodoroTeam.entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import java.util.Date;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class PomodoroEntity {
 
     @Id
