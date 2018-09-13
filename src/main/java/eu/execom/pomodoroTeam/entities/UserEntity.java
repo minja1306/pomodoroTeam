@@ -3,7 +3,6 @@ package eu.execom.pomodoroTeam.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,5 +36,4 @@ public class UserEntity {
     @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonBackReference
     private List<TeamEntity> teams = new ArrayList<>();
-
 }

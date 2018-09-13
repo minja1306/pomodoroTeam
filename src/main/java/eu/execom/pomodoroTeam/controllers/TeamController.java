@@ -12,7 +12,7 @@ import eu.execom.pomodoroTeam.services.MailService;
 import eu.execom.pomodoroTeam.services.Mapper;
 import eu.execom.pomodoroTeam.services.TeamService;
 import eu.execom.pomodoroTeam.services.UserService;
-import org.jboss.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +42,6 @@ public class TeamController {
     private UserService userService;
     private UserRepository userRepository;
     private MailService mailService;
-
-    private static Logger log = Logger.getLogger(TeamController.class);
 
     @Autowired
     public TeamController(TeamRepository teamRepository, TeamService teamService, Mapper mapper,
@@ -143,8 +141,7 @@ public class TeamController {
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/removeFromTeam/{id}/email")
     public ResponseEntity<TeamDto> removeUserFromTeam(@PathVariable Long id, @RequestParam String email) {
-        TeamEntity team = teamRepository.getOne(id);
-        teamService.removeUserFromTeam(id, email);
+        TeamEntity team = teamService.removeUserFromTeam(id, email);
         return new ResponseEntity<>(mapper.teamToTeamDto(team), HttpStatus.OK);
     }
 
@@ -159,10 +156,6 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     public void sendInvitation(@RequestBody InvitationDto invitationDto, @PathVariable Long id)
             throws MessagingException {
-        log.info("-------------------------------------------------------------------------------");
-        log.info("usao je u kontroler");
-        log.info("-------------------------------------------------------------------------------");
-        log.info("usao " + invitationDto.getUserEmail());
         Invitation invitation = userService.createInvitation(invitationDto.getUserEmail(), id);
         mailService.sendInvitationMail("Bojana", invitation);
     }
@@ -178,24 +171,13 @@ public class TeamController {
     public ResponseEntity<MessageDto> activateUserToTeam(@RequestParam(value = "activationLink") String activationLink,
             @RequestBody StatusDto statusDto) {
 
-        NewInvitationDto newInvitationDto = teamService.DataFromInvitation(activationLink);
         MessageDto messageDto = new MessageDto();
         String message = "";
-        if (statusDto.getAccept().equals("false")) {
+        if (!statusDto.isAccept()) {
             message = "invitation rejected";
         } else {
-            if (!teamService.checkIfUserExistsInThatTeamByEmail(newInvitationDto.getEmail(),
-                    newInvitationDto.getTeamId())) {
-                TeamWithUserDto teamWithUserDto = teamService.checkIfUserExistsInAnyTeam(newInvitationDto.getEmail(),
-                        newInvitationDto.getTeamId());
-                log.info(teamWithUserDto.isFound());
-                log.info("-------------------------------------------------------------------------------");
-                log.info(newInvitationDto.getEmail() + " " + newInvitationDto.getTeamId());
-                UserEntity us = userService.getUserByEmail(newInvitationDto.getEmail());
-                TeamEntity te = teamService.getSingleTeam(newInvitationDto.getTeamId());
-                teamService.addUserToTeam(us, te);
-                message = "user has been added";
-            }
+            teamService.addUserToTeamInvitation(activationLink);
+            message = "user has been added";
         }
         messageDto.setMessage(message);
         return new ResponseEntity<>(messageDto, HttpStatus.OK);

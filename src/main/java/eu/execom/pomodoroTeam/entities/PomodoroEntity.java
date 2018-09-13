@@ -2,7 +2,6 @@ package eu.execom.pomodoroTeam.entities;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,5 +32,4 @@ public class PomodoroEntity {
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn(name = "user")
     private UserEntity user;
-
 }

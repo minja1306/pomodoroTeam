@@ -7,12 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TeamWithUserDto {
 
-    private boolean found;
     private Long teamId;
-
-    public TeamWithUserDto(boolean found, Long teamId) {
-        this.found = found;
-        this.teamId = teamId;
-    }
+    private boolean found;
 }
 

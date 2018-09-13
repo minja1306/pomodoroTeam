@@ -4,11 +4,9 @@ import eu.execom.pomodoroTeam.entities.Invitation;
 import eu.execom.pomodoroTeam.entities.UserEntity;
 import eu.execom.pomodoroTeam.entities.dto.UserDto;
 import eu.execom.pomodoroTeam.repositories.InvitationRepository;
-import eu.execom.pomodoroTeam.repositories.TeamRepository;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,8 +31,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-
-
     public Invitation createInvitation(String username, Long teamId) {
         Invitation invitation = new Invitation();
 
@@ -45,20 +41,7 @@ public class UserService {
         return invitationRepository.save(invitation);
     }
 
-    public UserEntity getUserByEmail(String email){
-        return userRepository.findUserByEmail(email);
-    }
-
-
-    public boolean checkIfUserExist(String email) {
-        UserEntity user= userRepository.findUserByEmail(email);
-        List<UserEntity> users = userRepository.findAll();
-        boolean found = false;
-        for (UserEntity u : users) {
-            if (u.getEmail().equals(email)) {
-                found = true;
-            }
-        }
-        return found;
+    public UserEntity getUserByEmail(String email) {
+        return userRepository.getByEmail(email);
     }
   }

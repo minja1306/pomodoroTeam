@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -34,5 +33,4 @@ public class TeamEntity implements Serializable {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "User_Team", joinColumns = @JoinColumn(name = "Team_id"), inverseJoinColumns = @JoinColumn(name = "User_id"))
     private List<UserEntity> users = new ArrayList<>();
-
 }

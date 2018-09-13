@@ -34,8 +34,6 @@ public class LoginController {
 
     private UserRepository userRepository;
 
-    private static Logger log = Logger.getLogger(LoginController.class);
-
     @Autowired
     public LoginController(UserService userService, Mapper mapper, UserRepository userRepository) {
         this.userService = userService;

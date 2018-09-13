@@ -10,6 +10,7 @@ import eu.execom.pomodoroTeam.repositories.TeamRepository;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -27,25 +28,41 @@ public class TeamService {
         this.invitationRepository = invitationRepository;
     }
 
-    public void removeUserFromTeam(Long teamId, String email) {
+    public TeamEntity removeUserFromTeam(Long teamId, String email) {
         TeamEntity team = teamRepository.getOne(teamId);
-        UserEntity us = userRepository.getByEmail(email);
         List<UserEntity> users = team.getUsers();
-        for (UserEntity u : users) {
-            if (u.getEmail().equals(email)) {
-                users.remove(us);
-                teamRepository.save(team);
+        UserEntity userToRemove = null;
+        for (UserEntity user : users) {
+            if (user.getEmail().equals(email)) {
+                userToRemove = user;
+                break;
             }
         }
+        users.remove(userToRemove);
+        teamRepository.save(team);
+        return team;
     }
 
     public UserEntity addUserToTeam(UserEntity user, TeamEntity team) {
-        TeamEntity tm = teamRepository.getOne(team.getId());
-        UserEntity us = userRepository.getOne(user.getId());
+        UserEntity userEntity = userRepository.getOne(user.getId());
         List<UserEntity> users = team.getUsers();
-        users.add(us);
+        users.add(userEntity);
         teamRepository.save(team);
         return user;
+    }
+
+    public void addUserToTeamInvitation(String activationLink) {
+        NewInvitationDto newInvitationDto = getInvitationData(activationLink);
+        if (!checkIfUserExistsInThatTeamByEmail(newInvitationDto.getEmail(), newInvitationDto.getTeamId())) {
+            TeamWithUserDto teamWithUserDto = checkIfUserExistsInAnyTeam(newInvitationDto.getEmail(),
+                    newInvitationDto.getTeamId());
+            UserEntity userEntity = userRepository.getByEmail(newInvitationDto.getEmail());
+            TeamEntity teamEntity = teamRepository.getOne(newInvitationDto.getTeamId());
+            List<UserEntity> users = teamEntity.getUsers();
+            users.add(userEntity);
+            teamRepository.save(teamEntity);
+        }
+
     }
 
     public TeamEntity updateTeam(Long id, String name) {
@@ -60,7 +77,7 @@ public class TeamService {
         return invitationRepository.findOneByActivationLink(activationLink);
     }
 
-    public NewInvitationDto DataFromInvitation(String activationLink) {
+    public NewInvitationDto getInvitationData(String activationLink) {
         Invitation invitation = getByActivationLink(activationLink);
 
         NewInvitationDto newInvitationDto = new NewInvitationDto();
