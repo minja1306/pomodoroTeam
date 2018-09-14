@@ -1,8 +1,11 @@
 package eu.execom.pomodoroTeam.controllers;
 
+
 import eu.execom.pomodoroTeam.entities.UserEntity;
 import eu.execom.pomodoroTeam.entities.dto.UserDto;
 import eu.execom.pomodoroTeam.repositories.UserRepository;
+import eu.execom.pomodoroTeam.services.UserService;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,22 +22,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import eu.execom.pomodoroTeam.services.Mapper;
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/user")
 public class LoginController {
 
-    private UserRepository userRepository;
+    private UserService userService;
+
     private Mapper mapper;
 
+    private UserRepository userRepository;
+
     @Autowired
-    public LoginController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public LoginController(UserService userService, Mapper mapper, UserRepository userRepository) {
+        this.userService = userService;
         this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
+    /**
+     * authentication
+     *
+     * @param principal
+     * @return
+     */
     @RequestMapping
     public Principal user(Principal principal) {
         OAuth2Authentication details = (OAuth2Authentication) principal;
@@ -45,24 +57,24 @@ public class LoginController {
         return principal;
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserEntity> users = userRepository.findAll();
-        return new ResponseEntity<>(mapper.userListToUserDtoList(users), HttpStatus.OK);
-    }
-
+    /**
+     * add user
+     *
+     * @param userDto
+     * @return
+     */
     @PostMapping(value = "/addUser")
-    public ResponseEntity<UserDto> addNewUser(@RequestBody UserDto userDto) {
-        UserEntity user = userRepository.getByEmail(userDto.getEmail());
-        if (user == null) {
-            user = new UserEntity();
-            user.setName(userDto.getName());
-            user.setEmail(userDto.getEmail());
-            userRepository.save(user);
-        }
-        return new ResponseEntity<>(mapper.userToUserDto(user), HttpStatus.CREATED);
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        UserEntity userEntity = userService.createUser(userDto);
+        return new ResponseEntity<>(mapper.userToUserDto(userEntity), HttpStatus.CREATED);
     }
 
+    /**
+     * get user by id
+     *
+     * @param id
+     * @return
+     */
     @GetMapping(value = "/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
@@ -70,6 +82,13 @@ public class LoginController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    /**
+     * update user
+     *
+     * @param id
+     * @param userDto
+     * @return
+     */
     @PutMapping(value = "/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         UserEntity user = userRepository.getOne(id);
@@ -85,10 +104,16 @@ public class LoginController {
         return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
     }
 
+    /**
+     * delete user
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
-
 }
+

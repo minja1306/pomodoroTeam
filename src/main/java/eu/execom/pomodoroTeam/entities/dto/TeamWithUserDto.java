@@ -5,9 +5,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UserDto {
+public class TeamWithUserDto {
 
-    private Long id;
-    private String name;
-    private String email;
+    private Long teamId;
+    private boolean found;
 }
+

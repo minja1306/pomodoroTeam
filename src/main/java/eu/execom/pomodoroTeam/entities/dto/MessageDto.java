@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UserDto {
+public class MessageDto {
 
-    private Long id;
-    private String name;
-    private String email;
+    private String message;
 }
